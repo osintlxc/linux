@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 # vcs details
-EMAIL="your@gemail.com" &&
+EMAIL="your@email.com" &&
 NAME="Your Name" &&
 
 # medibuntu
