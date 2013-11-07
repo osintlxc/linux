@@ -31,26 +31,21 @@ sudo apt-fast install -y ubuntu-restricted-extras flashplugin-installer w64codec
 # internet
 sudo apt-fast install -y google-chrome-stable firefox network-manager-vpnc &&
 
-# performance
-sudo apt-fast install -y ureadahead prelink preload &&
-
 # fs
 sudo apt-fast install -y ssh samba gparted dropbox &&
 
 # system
-sudo apt-fast install -y synaptic rar p7zip-full gnome-system-tools pyrenamer &&
+sudo apt-fast install -y synaptic rar p7zip-full gnome-system-tools preload &&
 
 # media
 sudo apt-fast install -y mp3gain vorbisgain flickrbackup vlc &&
 
 # dev
-sudo apt-fast install -y gedit curl git mercurial virtualbox android-tools-adb android-tools-fastboot &&
+sudo apt-fast install -y gedit curl git virtualbox android-tools-adb android-tools-fastboot &&
 
 # aliases
 touch .bash_aliases &&
 rm .bash_aliases &&
-touch .bash_aliases &&
-
 echo "alias install='sudo apt-fast install'" >> .bash_aliases &&
 echo "alias remove='sudo apt-fast remove'" >> .bash_aliases &&
 echo "alias update='sudo apt-fast update'" >> .bash_aliases &&
@@ -76,12 +71,10 @@ git config --global alias.s status &&
 git config --global alias.a add &&
 git config --global alias.d diff &&
 git config --global push.default simple &&
-git config --global help.autocorrect 1 &&
 
 # hg
 touch .hgrc &&
 rm .hgrc &&
-touch .hgrc &&
 echo "[ui]" >> .hgrc &&
 echo "username = $NAME <$EMAIL>" >> .hgrc &&
 
