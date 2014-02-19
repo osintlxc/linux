@@ -1,47 +1,43 @@
 #!/bin/bash 
 
-# vcs details
-EMAIL="example@example.com" &&
-NAME="Robert Beal" &&
-
-# medibuntu
-sudo -E wget --output-document=/etc/apt/sources.list.d/medibuntu.list http://www.medibuntu.org/sources.list.d/$(lsb_release -cs).list && sudo apt-get --quiet update && sudo apt-get --yes --quiet --allow-unauthenticated install medibuntu-keyring &&
-
 # dropbox
 sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5044912E &&
 sudo add-apt-repository "deb http://linux.dropbox.com/ubuntu $(lsb_release -cs) main" &&
-
 # apt-fast
 sudo add-apt-repository ppa:apt-fast/stable &&
 # android
 sudo add-apt-repository ppa:nilarimogard/webupd8 &&
-
+sudo add-apt-repository ppa:upubuntu-com/sdk &&
+# java
+sudo add-apt-repository ppa:webupd8team/java &&
+# chrome
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - &&
+sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' &&
 
 sudo apt-get update &&
 sudo apt-get install -y apt-fast &&
-
 
 # remove
 sudo apt-fast remove -y rhythmbox tomboy gwibber thunderbird evolution nautilus-sendto ubuntuone-client empathy &&
 sudo apt-fast autoremove -y &&
 
 # codecs
-sudo apt-fast install -y ubuntu-restricted-extras flashplugin-installer w64codecs non-free-codecs libdvdcss2 mencoder &&
+sudo apt-fast install -y ubuntu-restricted-extras flashplugin-installer mencoder &&
 
 # internet
-sudo apt-fast install -y google-chrome-stable firefox network-manager-vpnc &&
+sudo apt-fast install -y dropbox google-chrome-stable firefox network-manager-vpnc &&
 
 # fs
-sudo apt-fast install -y ssh samba gparted dropbox &&
+sudo apt-fast install -y ssh samba gparted &&
 
 # system
-sudo apt-fast install -y synaptic rar p7zip-full gnome-system-tools preload &&
+sudo apt-fast install -y rar p7zip-full gnome-system-tools libappindicator1 eyed3 &&
 
 # media
 sudo apt-fast install -y mp3gain vorbisgain flickrbackup vlc &&
 
 # dev
-sudo apt-fast install -y gedit curl git virtualbox android-tools-adb android-tools-fastboot &&
+sudo apt-fast install -y gedit curl git virtualbox oracle-java7-installer android-sdk android-tools-adb android-tools-fastboot &&
 
 # aliases
 touch .bash_aliases &&
@@ -63,6 +59,10 @@ echo "alias gspps='git stash && git pull --rebase && git push && git stash pop'"
 VBoxManage setextradata global GUI/Customizations noMenuBar,noStatusBar &&
 sudo usermod -aG vboxusers $USER &&
 
+# vcs details
+EMAIL="example@example.com" &&
+NAME="Your Name" &&
+
 # git
 git config --global user.email "$EMAIL" &&
 git config --global user.name "$NAME" &&
@@ -79,11 +79,8 @@ echo "[ui]" >> .hgrc &&
 echo "username = $NAME <$EMAIL>" >> .hgrc &&
 
 # ruby
-curl -L https://get.rvm.io |   bash -s stable --ruby --autolibs=enable --auto-dotfiles &&
+\curl -sSL https://get.rvm.io | bash -s stable --ruby &&
 source ~/.rvm/scripts/rvm &&
-rvm requirements &&
-rvm install 2.0.0 &&
-rvm --default use 2.0.0 &&
 
 # samba
 sudo cp $HOME/Install/Settings/smb.conf /etc/samba/smb.conf &&
@@ -93,9 +90,9 @@ sudo smbpasswd -L -a $USER &&
 sudo smbpasswd -L -e $USER &&
 
 # swap
-if [ -n "sysctl -w vm.swappiness=10' /etc/rc.local" ]; then
-	echo -e "sysctl -w vm.swappiness=10 # Discourage swapping"   | sudo tee -a /etc/rc.local;
-fi &&
+#if [ -n "sysctl -w vm.swappiness=0' /etc/rc.local" ]; then
+#	echo -e "sysctl -w vm.swappiness=0 # Discourage swapping" | sudo tee -a /etc/rc.local;
+#fi &&
 
 # bash
 if [ -n "grep --quiet 'source ~/.rvm/scripts/rvm' ~/.bashrc" ]; then
