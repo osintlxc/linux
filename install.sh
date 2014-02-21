@@ -90,9 +90,9 @@ sudo smbpasswd -L -a $USER &&
 sudo smbpasswd -L -e $USER &&
 
 # swap
-#if [ -n "sysctl -w vm.swappiness=0' /etc/rc.local" ]; then
-#	echo -e "sysctl -w vm.swappiness=0 # Discourage swapping" | sudo tee -a /etc/rc.local;
-#fi &&
+if [ -n "sysctl -w vm.swappiness' /etc/rc.local" ]; then
+	sudo sed -i 's/exit 0/sysctl -w vm.swappiness=0\nexit 0/g' /etc/rc.local
+fi &&
 
 # bash
 if [ -n "grep --quiet 'source ~/.rvm/scripts/rvm' ~/.bashrc" ]; then
