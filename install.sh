@@ -90,7 +90,7 @@ sudo smbpasswd -L -a $USER &&
 sudo smbpasswd -L -e $USER &&
 
 # swap
-if [ -n "sysctl -w vm.swappiness' /etc/rc.local" ]; then
+if [ -n "grep 'sysctl -w vm.swappiness' /etc/rc.local" ]; then
 	sudo sed -i 's/exit 0/sysctl -w vm.swappiness=0\nexit 0/g' /etc/rc.local
 fi &&
 
