@@ -8,8 +8,6 @@ sudo add-apt-repository ppa:apt-fast/stable &&
 # android
 sudo add-apt-repository ppa:nilarimogard/webupd8 &&
 sudo add-apt-repository ppa:upubuntu-com/sdk &&
-# java
-sudo add-apt-repository ppa:webupd8team/java &&
 # chrome
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - &&
 sudo sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' &&
@@ -18,26 +16,26 @@ sudo apt-get update &&
 sudo apt-get install -y apt-fast &&
 
 # remove
-sudo apt-fast remove -y rhythmbox tomboy gwibber thunderbird evolution nautilus-sendto ubuntuone-client empathy &&
+sudo apt-fast remove -y rhythmbox tomboy gwibber thunderbird evolution nautilus-sendto ubuntuone-client empathy firefox unity-webapps-* &&
 sudo apt-fast autoremove -y &&
 
 # codecs
 sudo apt-fast install -y ubuntu-restricted-extras flashplugin-installer mencoder &&
 
 # internet
-sudo apt-fast install -y dropbox google-chrome-stable firefox network-manager-vpnc &&
+sudo apt-fast install -y dropbox google-chrome-stable network-manager-vpnc &&
 
 # fs
-sudo apt-fast install -y ssh samba gparted &&
+sudo apt-fast install -y ssh samba gparted dropbox &&
 
 # system
-sudo apt-fast install -y rar p7zip-full gnome-system-tools libappindicator1 eyed3 &&
-
+sudo apt-fast install -y synaptic rar p7zip-full gnome-system-tools unity-tweak-tool libappindicator1 eyed3 &&
+ 
 # media
-sudo apt-fast install -y mp3gain vorbisgain flickrbackup vlc &&
+sudo apt-fast install -y mp3gain flickrbackup && 
 
 # dev
-sudo apt-fast install -y gedit curl git virtualbox oracle-java7-installer android-sdk android-tools-adb android-tools-fastboot &&
+sudo apt-fast install -y gedit curl git virtualbox android-tools-adb android-tools-fastboot
 
 # aliases
 touch .bash_aliases &&
