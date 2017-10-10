@@ -1,65 +1,118 @@
-#!/bin/bash 
+#!/bin/bash
 
-sudo wget -O /etc/init.d/hosts https:///hosts.sh &&
-sudo chmod 644 /etc/init.d/hosts-updater &&
+# bunch of handy command for setting up an Arch install
 
-# dropbox
-sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5044912E &&
-sudo sh -c 'echo "deb http://linux.dropbox.com/ubuntu/ wily main" >> /etc/apt/sources.list.d/dropbox.list' &&
-sudo apt-get update &&
-sudo apt-get install -y dropbox &&
+# disable root
+sudo passwd -l root &&
 
-# chrome
-wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - &&
-sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' &&
-sudo apt-get update &&
-sudo apt-get install -y google-chrome-stable &&
-gsettings set org.gnome.desktop.interface font-name 'Ubuntu 10' &&
+# personal group
+sudo groupadd $USER &&
+sudo gpasswd -a $USER $USER &&
 
-# android tools
-sudo add-apt-repository ppa:nilarimogard/webupd8 &&
-sudo add-apt-repository ppa:upubuntu-com/sdk &&
-sudo apt-get update &&
-sudo apt-get install -y android-tools-adb android-tools-fastboot &&
+# intel processor
+sudo pacman -S --noconfirm intel-ucode &&
 
-# atom
-sudo add-apt-repository ppa:webupd8team/atom &&
-sudo apt-get update &&
-sudo apt-get install -y atom &&
+# gnome apps
+sudo pacman -S --noconfirm gnome-packagekit gnome-calculator eog evince gthumb gnome-screenshot &&
 
-# codecs
-sudo apt-get install -y ubuntu-restricted-extras flashplugin-installer &&
-
-# internet
-sudo apt-get install -y network-manager-vpnc network-manager-vpnc-gnome rdesktop &&
-
-# system
-sudo apt-get install -y gparted rar p7zip-full gnome-system-tools libappindicator1 eyed3 unity-tweak-tool &&
- 
-# media
-sudo apt-get install -y vlc mp3gain sound-juicer && 
+# common system apps
+sudo pacman -S --noconfirm cronie dnsmasq openssh p7zip gparted dosfstools fakeroot net-tools bind-tools mtpfs dconf-editor &&
 
 # dev
-sudo apt-get install -y tmux curl vim git git-gui &&
+sudo pacman -S --noconfirm gedit nano atom git gitg curl wget tmux meld jq &&
 
-# remove
-sudo apt-get remove -y rhythmbox evolution empathy unity-webapps-* apport xterm shotwell thunderbird firefox &&
-sudo apt-get install -y unity-webapps-common &&
-sudo apt-get autoremove -y &&
+# web
+sudo pacman -S --noconfirm firefox chromiumry qt4 vlc android-tools &&
 
-# flickr
-sudo apt-get install python-pip &&
-easy_install -U pip &&
-sudo pip install requests[security]
-sudo pip install flickrbackup &&
+### Hardening
 
-# vcs details
-EMAIL="foo@bar.com" &&
-NAME="Foo Bar" &&
-git config --global user.email "$EMAIL" &&
-git config --global user.name "$NAME" &&
-git config --global alias.c commit &&
-git config --global alias.s status &&
-git config --global alias.a add &&
-git config --global alias.d diff &&
-git config --global push.default simple &&
+sudo chmod 700 /boot &&
+sudo chmod 700 /etc/iptables &&
+
+## password policy
+sudo sed -i "/.*pam_cracklib.so.*/c\password required pam_cracklib.so retry=2 minlen=10 difok=6 dcredit=-1 ucredit=-1 ocredit=-1 lcredit=-1" /etc/pam.d/passwd &&
+
+## kernel
+cat sysctl.conf | sudo tee /etc/sysctl.d/51-net.conf &&
+## ssh
+cat sshd_config | sudo tee /etc/ssh/sshd_config &&
+## sandbox
+sudo pacman -S --noconfirm firejail lynis arch-audit &&
+sudo firecfg &&
+## rootkit
+sudo pacman -S --noconfirm rkhunter;
+
+# sysreq
+echo "kernel.sysrq = 1" | sudo tee /etc/sysctl.d/99-sysctl.conf &&
+
+# cinnamon
+sudo pacman -S --noconfirm arc-icon-theme arc-gtk-theme nemo-fileroller lightdm-gtk-greeter-settings &&
+
+# network manager
+sudo pacman -S --noconfirm networkmanager networkmanager-openvpn network-manager-applet gnome-keyring libsecret ppp pptpclient &&
+echo "[main]" | sudo tee --append /etc/NetworkManager/NetworkManager.conf &&
+echo "dns=dnsmasq" | sudo tee --append /etc/NetworkManager/NetworkManager.conf &&
+
+# fonts
+## dejavu
+sudo pacman -S --noconfirm freetype2 ttf-dejavu &&
+sudo ln -s /etc/fonts/conf.avail/70-no-bitmaps.conf /etc/fonts/conf.d &&
+sudo ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /etc/fonts/conf.d &&
+sudo ln -s /etc/fonts/conf.avail/11-lcdfilter-default.conf /etc/fonts/conf.d &&
+sudo sed -i 's/^#export FREETYPE_PROPERTIES/export FREETYPE_PROPERTIES/' /etc/profile.d/freetype2.sh &&
+cat fontconfig.xml | sudo tee /etc/fonts/local.conf &&
+## msfonts
+curl -L https://github.com/robertbeal/msfonts/raw/master/install.sh | sudo sh &&
+## google fonts
+curl https://raw.githubusercontent.com/qrpike/Web-Font-Load/master/install_arch.sh | sh &&
+## settings
+gsettings set org.gnome.desktop.interface document-font-name 'DejaVu Sans Condensed 11' &&
+gsettings set org.gnome.desktop.interface font-name 'DejaVu Sans Condensed 9' &&
+gsettings set org.gnome.desktop.interface monospace-font-name 'DejaVu Sans Mono Condensed 11' &&
+gsettings set org.cinnamon.desktop.interface font-name 'DejaVu Sans Condensed 9.5' &&
+
+# printing
+sudo pacman -S --noconfirm cups cups-pdf system-config-printer gtk3-print-backends ghostscript gsfonts gutenprint &&
+sudo pacman -S --noconfirm hplip &&
+sudo systemctl enable org.cups.cupsd.service &&
+sudo systemctl start org.cups.cupsd.service &&
+sudo groupadd printadmin &&
+sudo usermod -aG printadmin $USER &&
+sudo sed -i "/SystemGroup sys root$/c\SystemGroup sys root printadmin" /etc/cups/cups-files.conf &&
+
+# time
+sudo pacman -S --noconfirm ntp &&
+sudo systemctl enable ntpd &&
+sudo systemctl start ntpd &&
+
+# vim
+sudo pacman -S --noconfirm vim &&
+rm -Rf ~/.vim/bundle/ &&
+git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/vundle.vim &&
+git clone https://github.com/kien/ctrlp.vim.git ~/.vim/bundle/ctrlp.vim &&
+git clone https://github.com/wookiehangover/jshint.vim.git ~/.vim/bundle/jshint.vim &&
+git clone https://github.com/ervandew/supertab.git ~/.vim/bundle/supertab &&
+git clone https://github.com/scrooloose/syntastic.git ~/.vim/bundle/syntastic &&
+git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree &&
+
+# synthing
+sudo pacman -S --noconfirm syncthing &&
+mkdir -p ~/.config/autostart &&
+cat autostart/Syncthing.desktop | tee ~/.config/autostart/Syncthing.desktop &&
+sudo ln -s /usr/bin/firejail /usr/local/bin/syncthing &&
+
+# file permissions
+## ssh
+chmod 700 ~/.ssh &&
+find ~/.ssh -type d -exec chmod 700 {} + &&
+find ~/.ssh -type f -exec chmod 600 {} + &&
+chmod -R 644 ~/.ssh/*.pub &&
+
+### Other Sources
+
+# homeshick
+git clone git://github.com/andsens/homeshick.git ~/.homesick/repos/homeshick &&
+if ! grep -q ".homesick/repos/homeshick/homeshick.sh" ~/.bashrc; then
+    printf '\nsource "$HOME/.homesick/repos/homeshick/homeshick.sh"' >> ~/.bashrc &&
+    source ~/.bashrc
+fi
